@@ -19,9 +19,7 @@ public class Server {
             System.out.println("Server is listening on port: " + port);
 
             while (true) {
-                try (Socket acceptedConnection = socket.accept())
-
-                {
+                try (Socket acceptedConnection = socket.accept()) {
                     System.out.println("Accepted connections" + acceptedConnection.getRemoteSocketAddress());
 
                     handleSocket(acceptedConnection);
@@ -31,7 +29,8 @@ public class Server {
                 }
             }
         } finally {
-            socket.close();
+            if (socket != null)
+                socket.close();
             System.out.println("Server is shutting down");
         }
     }
@@ -67,8 +66,6 @@ public class Server {
             toClient.println("No data received.");
         }
 
-        acceptedConnection.close();
-
         /*
          * not important as the socket will be closed when the connection is closed
          * toClient.close();
@@ -85,13 +82,3 @@ public class Server {
         }
     }
 }
-
-// why this error
-/*
- * 
- * PS C:\Projects\web server java> java Server.java
- * Error: Could not find or load main class Server.java
- * Caused by: java.lang.ClassNotFoundException: Server.java
- * PS C:\Projects\web server java>
- * 
- */

@@ -44,9 +44,9 @@ public class Server {
     public static void main(String[] args) {
         int port = 8010;
         Server server = new Server();
-
+        ServerSocket socket = null;
         try {
-            ServerSocket socket = new ServerSocket(port);
+            socket = new ServerSocket(port);
 
             /*
              * alternate
@@ -56,11 +56,11 @@ public class Server {
              * socketHandler.accept(acceptedSocket);
              * 
              */
-            socket.setSoTimeout(10000);
             System.out.println("Server listening on port " + port);
 
             while (true) {
                 Socket acceptedSocket = socket.accept();
+                System.out.println("Connection accepted for: " + acceptedSocket.getRemoteSocketAddress());
                 Thread thread = new Thread(() -> server.getConsumer().accept(acceptedSocket));
                 thread.start();
             }
@@ -69,5 +69,6 @@ public class Server {
             ex.getStackTrace();
             System.out.println("Server Closed");
         }
+
     }
 }
