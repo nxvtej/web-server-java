@@ -10,35 +10,21 @@ import java.net.UnknownHostException;
 public class Server {
     public void run() throws IOException, UnknownHostException, IOException, SocketException {
         int port = 8010;
-        ServerSocket socket = new ServerSocket(port);
-        socket.setSoTimeout(50000);
+        ServerSocket socket = null;
+        // socket.setSoTimeout(100000);
 
         try {
 
-            while (true) {
-                try {
+            socket = new ServerSocket(port);
+            System.out.println("Server is listening on port: " + port);
 
-                    System.out.println("Server is listening on port: " + port);
-                    Socket acceptedConnection = socket.accept();
+            while (true) {
+                try (Socket acceptedConnection = socket.accept())
+
+                {
                     System.out.println("Accepted connections" + acceptedConnection.getRemoteSocketAddress());
 
-                    PrintWriter toClient = new PrintWriter(acceptedConnection.getOutputStream(), true);
-                    BufferedReader fromClient = new BufferedReader(
-                            new InputStreamReader(acceptedConnection.getInputStream())); // cause it takes inputstream
-
-                    toClient.println("Hello from the server");
-                    toClient.flush();
-
-                    String line = fromClient.readLine();
-                    System.out.println("Received from the client: " + line);
-
-                    acceptedConnection.close();
-
-                    /*
-                     * not important as the socket will be closed when the connection is closed
-                     * toClient.close();
-                     * fromClient.close();
-                     */
+                    handleSocket(acceptedConnection);
 
                 } catch (IOException ex) {
                     ex.printStackTrace();
@@ -48,6 +34,46 @@ public class Server {
             socket.close();
             System.out.println("Server is shutting down");
         }
+    }
+
+    private void handleSocket(Socket clientSocket) throws IOException {
+        try (PrintWriter toClient = new PrintWriter(clientSocket.getOutputStream(), true);
+                BufferedReader fromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))) {
+
+            // Read the message from the client
+            String line = fromClient.readLine();
+            if (line != null) {
+                System.out.println("Received from client: " + line);
+                toClient.println("Message received: " + line);
+            } else {
+                toClient.println("No data received.");
+            }
+        }
+    }
+
+    public void demoCode(Socket acceptedConnection) throws IOException {
+        PrintWriter toClient = new PrintWriter(acceptedConnection.getOutputStream(), true);
+        BufferedReader fromClient = new BufferedReader(
+                new InputStreamReader(acceptedConnection.getInputStream())); // cause it takes inputstream
+
+        toClient.println("Hello from the server");
+        toClient.flush();
+
+        String line = fromClient.readLine();
+        if (line != null) {
+            System.out.println("Received from the client: " + line);
+            toClient.println("Message received: " + line);
+        } else {
+            toClient.println("No data received.");
+        }
+
+        acceptedConnection.close();
+
+        /*
+         * not important as the socket will be closed when the connection is closed
+         * toClient.close();
+         * fromClient.close();
+         */
     }
 
     public static void main(String[] args) {
