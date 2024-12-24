@@ -12,10 +12,11 @@ public class Client {
         InetAddress address = InetAddress.getByName("localhost");
 
         Socket socket = new Socket(address, port);
+
         PrintWriter toSocket = new PrintWriter(socket.getOutputStream(), true);
         BufferedReader fromSocket = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-        toSocket.println("Hello from the socket" + socket.getLocalSocketAddress());
+        toSocket.println("Hello from the socket: " + socket.getLocalSocketAddress());
         String line = fromSocket.readLine();
         System.out.println("Response from the socket is" + line);
 
